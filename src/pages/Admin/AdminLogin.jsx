@@ -1,15 +1,15 @@
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { adminLogin } from '../../store/actions/tollActions';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../../firebase/firebaseConfig'; // adjust path if needed
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const handleSubmit = (e) => {
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!email || !password) {
@@ -17,11 +17,12 @@ const AdminLogin = () => {
             return;
         }
 
-        dispatch(adminLogin(email, password, navigate))
-
-        setEmail('');
-        setPassword('');
-        setErrorMessage('');
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            navigate('/admin-dashboard');
+        } catch (error) {
+            setErrorMessage(error.message);
+        }
     };
 
     return (
@@ -73,7 +74,6 @@ const AdminLogin = () => {
                     {/* Login Button */}
                     <div className="flex justify-center">
                         <button
-                            onClick={handleSubmit}
                             type="submit"
                             className="w-full py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
                         >
